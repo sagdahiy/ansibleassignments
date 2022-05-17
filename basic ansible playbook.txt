@@ -1,0 +1,81 @@
+********adhoc-commands******
+
+
+* hosts location in ansible :
+
+  /etc/ansible/hosts
+
+*to show all host present in hosts :
+
+ansible --list-hosts all
+
+* to ping all hosts :
+
+ansible all -i hosts -m ping
+
+
+********** structure playbook ans shell commands **********
+
+
+---
+ - name: Play
+   hosts: all
+   connection: local
+   tasks:
+   - name: task 1
+     command: ls
+     register: "output"
+   - debug: var=output.stdout_lines
+   - name: create folder
+     shell: "cd /tmp; mkdir learnansible; cd learnansible ; echo abc
+     register: "output"
+   - debug: var=output.stdout_lines
+
+***********file operation *************
+
+---
+ - name: Play 
+   hosts: all
+   connection: local
+   tasks:
+   - name: "compress directory"
+     archive:
+       path: /tmp/learnansible
+       dest: /tmp/learnansible.tgz
+   - name: "copy archive"
+     copy:
+       src: /tmp/learnansible.tgz
+       dest: home/tmp/learnansible.tgz
+   - name: "find archives"
+     find:
+       path: /home
+       patterns: '*.tgz'
+     register: output
+   - debug: var=output.files
+
+
+**************8to install software**********
+
+
+
+
+---
+ - name: Play 
+   hosts: all
+   connection: local
+   become: true
+   become_method: sudo
+   tasks:
+   - name: remove vim
+     apt:
+       name: vim
+       state: absent
+   - name: install vim and call apt update
+     apt:
+       name: vim
+       state: present
+       update_cache: yes
+     archive:
+       path: /tmp/learnansible
+       dest: /tmp/learnansible.tgz
+   - name: "copy archive"

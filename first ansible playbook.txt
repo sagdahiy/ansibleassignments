@@ -1,0 +1,60 @@
+***** write your first playbook*****
+
+---
+- name: install apache across centos machine
+  hosts: servers
+  become: yes
+  tasks:
+  - name: install apache httpd software
+    yum:
+      name: httpd
+      state: present
+  - name: start and enable apache
+    services:
+      name: httpd
+      state: started
+      enabled: yes
+  - name: stop firewall
+    services:
+      name: firewallstop
+      state: stopped
+
+run it by command:
+ansible-playbook deno.yml
+
+****** change port *********
+
+---
+- name: install apache across centos machine
+  hosts: servers
+  become: yes
+  vars:
+   - new_port: 81
+  handlers:
+   - name: restart apache
+     service: name=https state=restarted enabled=yes
+  tasks:
+  - name: install apache httpd software
+    yum:
+      name: httpd
+      state: present
+  - name: start and enable apache
+    services:
+      name: httpd
+      state: started
+      enabled: yes
+  - name: stop firewall
+    services:
+      name: firewallstop
+      state: stopped
+  - name: change default port
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp:'Listen \d+'
+      line: 'Listen {{ new_port }}'
+    notify:
+      - restart apache  
+
+again run:
+ansible-playbook demo.yaml
+
